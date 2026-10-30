@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Tauri Android target under `src-tauri/gen/android` with application id
+  `com.liraymond04.qiaoreader`, a signed release configuration, and an arm64
+  debug APK build workflow.
+
 ## [0.1.0] - 2026-10-30
 
 ### Added

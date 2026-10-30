@@ -9,7 +9,7 @@ QiaoReader is in early development. This file is the public summary; [`.harness/
 | 1. Rust core & CC-CEDICT integration | Done |
 | 2. Split-screen UI & AnkiConnect | Split-screen shell done; AnkiConnect client next |
 | 3. Interactive JIT reading loop | Reference reveal/modes/ruby/details done; pre-check next |
-| 4. Mobile orientation & gestures | Not started |
+| 4. Mobile orientation & gestures | Android target + debug APK done; landscape lock and swipe next |
 | 5. Documentation site & publishing | Not started |
 
 ## Roadmap
@@ -21,6 +21,7 @@ QiaoReader is in early development. This file is the public summary; [`.harness/
 - [ ] AnkiConnect TypeScript client
 - [x] Reference panel reveal modes, ruby pinyin, tone colors, and details view
 - [ ] Pre-check interstitial and reader-level reveal loop
+- [x] Android target, arm64 debug APK, signed release configuration, and debug CI workflow
 - [ ] Mobile landscape locking and swipe pagination
 - [ ] Documentation site (MkDocs Material) on GitHub Pages
 

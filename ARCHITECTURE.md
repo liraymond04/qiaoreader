@@ -75,6 +75,22 @@ GTK 3 gives GL-composited windows a 60 Hz frame clock on Wayland even when the d
 
 QiaoReader disables WebKit's accelerated compositing on Wayland at startup, which moves rendering to the Cairo path that follows the display's refresh rate. The CPU cost is acceptable for a text reader. Set `QIAOREADER_ALLOW_GPU_COMPOSITING=1` to keep GPU compositing, or set `WEBKIT_DISABLE_COMPOSITING_MODE` explicitly to override the choice.
 
+## Android target
+
+The Tauri Android project is committed under `src-tauri/gen/android` with
+application id `com.liraymond04.qiaoreader`, `minSdk` 24, and compile/target SDK
+37. The Gradle release build reads `keystore.properties` from the Android
+project root; the file is never committed and is populated from CI secrets.
+Debug builds use the Android debug key.
+
+```sh
+bun tauri android build --debug --apk --target aarch64
+```
+
+The manual `Android debug build` workflow runs the same command on a GitHub
+runner and uploads the arm64 APK. The release workflow builds signed Android
+artifacts only when the Android signing secrets exist.
+
 ## Database schema
 
 | Table | Purpose |
@@ -121,10 +137,13 @@ src-tauri/
     text.rs                   jieba-rs segmentation + dictionary annotation
     state.rs                  Shared app state and app-data paths
   examples/build_dictionary.rs
+  gen/android/                Committed Tauri Android project (Gradle, Kotlin, resources)
   resources/cc-cedict/        Fetched dictionary data (gitignored) + attribution
 .harness/                     PRD, build plan, technical constraints
 scripts/                      CC-CEDICT fetch script, verification gate
 .github/workflows/ci.yml      Web and Rust CI
+.github/workflows/release.yml Tag-driven desktop and signed Android releases
+.github/workflows/android-debug.yml  Manual arm64 debug APK build
 ```
 
 ## Localization
