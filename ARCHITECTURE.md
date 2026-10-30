@@ -59,6 +59,12 @@ Layout rules:
 - Reader words are inline buttons with a dotted underline. Masked pinyin and definitions arrive in Milestone 3.
 - The page currently renders a sample paragraph until document import lands.
 
+## Linux rendering
+
+GTK 3 gives GL-composited windows a 60 Hz frame clock on Wayland even when the display runs faster ([GTK issue #8461](https://gitlab.gnome.org/GNOME/gtk/-/work_items/8461)). WebKitGTK 4.1, which Tauri 2 uses on Linux, is a GTK 3 application, so its accelerated-compositing path is capped at 60 fps on a 165 Hz laptop.
+
+QiaoReader disables WebKit's accelerated compositing on Wayland at startup, which moves rendering to the Cairo path that follows the display's refresh rate. The CPU cost is acceptable for a text reader. Set `QIAOREADER_ALLOW_GPU_COMPOSITING=1` to keep GPU compositing, or set `WEBKIT_DISABLE_COMPOSITING_MODE` explicitly to override the choice.
+
 ## Database schema
 
 | Table | Purpose |
