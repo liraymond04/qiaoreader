@@ -12,7 +12,7 @@ use crate::error::{AppError, AppResult, PathErrorExt};
 use crate::text::Segmenter;
 
 pub struct AppState {
-    /// `<platform app data>/com.liray.qiaoreader` — writable location.
+    /// `<platform app data>/com.liraymond04.qiaoreader` — writable location.
     pub app_data_dir: PathBuf,
     /// Tauri resource directory, present in bundled builds.
     pub resource_dir: Option<PathBuf>,

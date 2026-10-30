@@ -30,7 +30,7 @@ bun tauri dev
 
 `bun run dict:fetch` downloads the current CC-CEDICT release (4 MB gzipped) into `src-tauri/resources/cc-cedict/`. The data file is intentionally not committed; pass `--force` to refresh it.
 
-On first launch the dictionary panel reports **not built**. Press **Build dictionary**; the import takes a few seconds and writes the database to `~/.local/share/com.liray.qiaoreader/dictionary.db` on Linux.
+On first launch the dictionary panel reports **not built**. Press **Build dictionary**; the import takes a few seconds and writes the database to `~/.local/share/com.liraymond04.qiaoreader/dictionary.db` on Linux.
 
 To build a production bundle:
 
