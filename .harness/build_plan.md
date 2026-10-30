@@ -11,6 +11,8 @@
   - [ ] Program Pre-Check interstitial workspace management state in Svelte
   - [x] Construct Svelte-native masked tap-to-reveal components using local state ($state)
 - [ ] Milestone 4: Mobile Platform Orientation & Compilation
+  - [x] Initialize the Tauri Android target and verify a debug APK build (arm64)
+  - [x] Add the signed release configuration and a manual Android debug build workflow
   - [ ] Integrate Tauri native landscape-locking window configurations
   - [ ] Code swipe pagination gesture touch mechanics
 

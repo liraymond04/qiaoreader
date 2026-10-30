@@ -118,9 +118,10 @@ Triggered by a `v*` tag (or manually with an existing tag):
 
 - **Desktop** on Ubuntu, macOS (arm64 and x64), and Windows. Linux produces
   AppImage/deb/rpm; macOS produces `.app`/`.dmg`; Windows produces `.msi`/NSIS.
-- **Android** when `src-tauri/gen/android` exists: `tauri-action` runs
+- **Android** when the signing secrets are configured: `tauri-action` runs
   `tauri android build` and uploads the `.apk`/`.aab` to the same release.
-  Until the Android project is initialised in Milestone 4, this job is skipped.
+  The Android project is committed; without signing secrets the job is skipped
+  so a desktop release still succeeds.
 
 The workflow publishes the release automatically. The release body is the
 matching `## [X.Y.Z]` section from `CHANGELOG.md`; write that section before
@@ -129,23 +130,29 @@ macOS will show Gatekeeper warnings for unsigned builds.
 
 ## Android signing
 
-Android release builds need the generated project and an upload keystore:
+Android release builds use the committed project under `src-tauri/gen/android`
+and an upload keystore. The Gradle release signing block reads
+`keystore.properties` from the Android project root, following
+[Tauri's Android signing guide](https://v2.tauri.app/distribute/sign/android/).
 
-1. Initialise and commit the Android project (`bun tauri android init`), then
-   configure the release signing block in
-   `src-tauri/gen/android/app/build.gradle.kts` as described in
-   [Tauri's Android signing guide](https://v2.tauri.app/distribute/sign/android/).
-2. Add these repository secrets:
+1. Add these repository secrets:
    - `ANDROID_KEY_BASE64` — the keystore file, base64-encoded
    - `ANDROID_KEY_ALIAS` — the key alias
    - `ANDROID_KEY_PASSWORD` — the keystore/key password
-3. The workflow writes `src-tauri/gen/android/keystore.properties` in the runner
+2. The workflow writes `src-tauri/gen/android/keystore.properties` in the runner
    and decodes the keystore into `$RUNNER_TEMP`; nothing secret is committed.
-4. Keep the NDK version in the workflow aligned with the `ndkVersion` in the
-   generated Gradle project.
+3. The workflow installs compileSdk 37 and NDK 28.2.13676358. Keep those aligned
+   with the generated Gradle project.
 
-The Android job fails with a clear message if the signing secrets are missing.
-That is intentional: a release APK must be signed.
+The release Android job is skipped unless the signing secrets are present, so a
+desktop release still succeeds without them. Debug builds need no secrets:
+
+```sh
+bun tauri android build --debug --apk --target aarch64
+```
+
+The manual **Android debug build** workflow runs that command on CI and uploads
+the arm64 APK as an artifact.
 
 ## Desktop signing
 
