@@ -155,7 +155,7 @@
               class="flex w-full flex-col gap-1.5 rounded-md px-3 py-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
             >
               {#if ruby}
-                <span class="flex flex-wrap items-end gap-x-0.5 gap-y-1 pr-8">
+                <span class="flex flex-wrap items-end gap-x-0.5 gap-y-1 pr-10">
                   {#each ruby as syllable}
                     <span class="relative inline-flex flex-col items-center pt-5">
                       <span
@@ -178,7 +178,7 @@
                   {/each}
                 </span>
               {:else}
-                <span class="block pr-8 font-reader text-[1.75rem] leading-none">
+                <span class="block pr-10 font-reader text-[1.75rem] leading-none">
                   {word.text}
                 </span>
                 <span
@@ -210,7 +210,7 @@
             <Button
               variant="ghost"
               size="icon"
-              class="absolute right-1.5 top-1.5 text-muted-foreground opacity-60 transition-opacity hover:opacity-100 focus-visible:opacity-100 sm:opacity-40 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100"
+              class="absolute right-1.5 top-1.5 !size-11 text-muted-foreground opacity-60 transition-opacity hover:opacity-100 focus-visible:opacity-100 sm:opacity-40 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100"
               onclick={() => onDetails(index)}
               aria-label={$t("dock.details", {
                 values: { word: word.text },
