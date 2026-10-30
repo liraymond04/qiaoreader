@@ -5,3 +5,4 @@
 //! the webview never freezes mid-import.
 
 pub mod dictionary;
+pub mod text;

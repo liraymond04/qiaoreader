@@ -6,7 +6,7 @@ QiaoReader is in early development. This file is the public summary; [`.harness/
 
 | Milestone | State |
 | --- | --- |
-| 1. Rust core & CC-CEDICT integration | Database, parser, and lookup/search commands done; `process_raw_text` segmentation next |
+| 1. Rust core & CC-CEDICT integration | Done |
 | 2. Split-screen UI & AnkiConnect | Not started |
 | 3. Interactive JIT reading loop | Not started |
 | 4. Mobile orientation & gestures | Not started |
@@ -16,7 +16,7 @@ QiaoReader is in early development. This file is the public summary; [`.harness/
 
 - [x] Embedded SQLite schema and CC-CEDICT importer
 - [x] `dictionary_status` / `dictionary_source` / `dictionary_build` / `dictionary_lookup` / `dictionary_search`
-- [ ] `process_raw_text` with `jieba-rs` segmentation
+- [x] `process_raw_text` with `jieba-rs` segmentation
 - [ ] Split-screen Svelte layout and AnkiConnect client
 - [ ] Tap-to-reveal reading loop with pre-check interstitial
 - [ ] Mobile landscape locking and swipe pagination

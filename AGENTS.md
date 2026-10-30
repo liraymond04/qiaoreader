@@ -98,4 +98,4 @@ Translation management: catalogs stay in-repo and reviewable. Hosted [Weblate](h
 4. **Milestone Tracking:** Update the markdown checklist (`- [x]`) in `.harness/build_plan.md` in the same change that proves the task complete.
 
 ## 🏁 Current Operational Directives
-Begin execution on **Milestone 1: Rust Core Setup & Dictionary Integration**. The current state is summarised in `STATUS.md`; the next task is the first unchecked item in `.harness/build_plan.md`.
+Begin execution on **Milestone 2: Responsive Split-Screen UI & Anki Connect**. The current state is summarised in `STATUS.md`; the next task is the first unchecked item in `.harness/build_plan.md`.

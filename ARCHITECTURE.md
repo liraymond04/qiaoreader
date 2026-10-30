@@ -14,7 +14,7 @@ SQLite dictionary.db
         ▼
 Tauri commands  ──────────────►  Svelte 5 / TypeScript UI
         ▲
-        └── jieba-rs segmentation (Milestone 1, next)
+        └── jieba-rs segmentation + CC-CEDICT lookups (process_raw_text)
 ```
 
 ## Dictionary import
@@ -39,6 +39,12 @@ The core probes these locations in order and uses the first match:
 
 Accepted names: `cedict_1_0_ts_utf-8_mdbg.txt.gz`, `cedict_1_0_ts_utf-8_mdbg.txt`, `cc-cedict.txt.gz`, `cc-cedict.txt`. Gzip is detected by magic bytes, not by extension.
 
+## Segmentation
+
+`process_raw_text` runs jieba-rs in default mode with HMM enabled. It emits the input as ordered segments, preserving the whitespace and punctuation that the segmenter skips, and annotates Han tokens with their CC-CEDICT readings. Unique words are returned once in first-appearance order and segments reference them by index, which keeps repeated words out of the IPC payload and gives the reference sidebar its chronological vocabulary list.
+
+The segmenter's dictionary is embedded in the binary and loaded lazily on the first request.
+
 ## Database schema
 
 | Table | Purpose |
@@ -61,6 +67,7 @@ Schema changes bump `SCHEMA_VERSION` and ship an idempotent migration.
 | `dictionary_build` | `sourcePath?`, `force?` | `DictionaryBuildReport` |
 | `dictionary_lookup` | `word`, `limit?` | `DictEntry[]` (exact simplified or traditional match) |
 | `dictionary_search` | `query`, `limit?` | `DictEntry[]` (Han characters, pinyin, or English) |
+| `process_raw_text` | `text` | `ProcessedText` (ordered segments + unique dictionary words) |
 
 Builds emit `dictionary://import-progress` events with `phase`, `processed`, `total`, and `entries` fields. Errors are serialized as `{ code, message }`.
 
@@ -73,7 +80,8 @@ src-tauri/
   src/
     db/                       SQLite: schema, migrations, read queries
     dictionary/               CC-CEDICT parser, pinyin, source lookup, importer
-    commands/dictionary.rs    Tauri IPC surface
+    commands/                 Tauri IPC surface
+    text.rs                   jieba-rs segmentation + dictionary annotation
     state.rs                  Shared app state and app-data paths
   examples/build_dictionary.rs
   resources/cc-cedict/        Fetched dictionary data (gitignored) + attribution

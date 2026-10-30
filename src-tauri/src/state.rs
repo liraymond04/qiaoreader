@@ -2,13 +2,14 @@
 //! filesystem locations needed to locate CC-CEDICT.
 
 use std::path::{Path, PathBuf};
-use std::sync::{Mutex, MutexGuard};
+use std::sync::{Mutex, MutexGuard, OnceLock};
 
 use tauri::{AppHandle, Manager};
 
 use crate::db::{DB_FILE_NAME, Database};
 use crate::dictionary::source::{self, SourceLookup};
 use crate::error::{AppError, AppResult, PathErrorExt};
+use crate::text::Segmenter;
 
 pub struct AppState {
     /// `<platform app data>/com.liray.qiaoreader` — writable location.
@@ -16,6 +17,8 @@ pub struct AppState {
     /// Tauri resource directory, present in bundled builds.
     pub resource_dir: Option<PathBuf>,
     db: Mutex<Database>,
+    /// Loaded on the first `process_raw_text` so app start stays cheap.
+    segmenter: OnceLock<Segmenter>,
 }
 
 impl AppState {
@@ -34,6 +37,7 @@ impl AppState {
             app_data_dir,
             resource_dir,
             db: Mutex::new(db),
+            segmenter: OnceLock::new(),
         })
     }
 
@@ -41,6 +45,11 @@ impl AppState {
     /// or one import, so lock contention is not a concern in practice.
     pub fn db(&self) -> AppResult<MutexGuard<'_, Database>> {
         self.db.lock().map_err(|_| AppError::LockPoisoned)
+    }
+
+    /// The shared segmenter, initialized on first use.
+    pub fn segmenter(&self) -> &Segmenter {
+        self.segmenter.get_or_init(Segmenter::new)
     }
 
     /// Probe every known location for the CC-CEDICT source file.

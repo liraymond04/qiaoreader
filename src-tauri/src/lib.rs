@@ -9,6 +9,7 @@
 
 mod commands;
 mod state;
+mod text;
 
 // Public so examples and future integration tests can drive the core without
 // booting a Tauri window. `commands`/`state` stay private: they are IPC glue.
@@ -37,6 +38,7 @@ pub fn run() {
             commands::dictionary::dictionary_build,
             commands::dictionary::dictionary_lookup,
             commands::dictionary::dictionary_search,
+            commands::text::process_raw_text,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
