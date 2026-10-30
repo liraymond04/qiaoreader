@@ -118,7 +118,12 @@ writeFileSync(changelogPath, updatedChangelog);
 
 console.log(`Updated versions to ${requestedVersion}.`);
 console.log("Next:");
+console.log(`  git switch -c chore/release-v${requestedVersion}`);
+console.log("  cargo check   # refresh src-tauri/Cargo.lock");
 console.log("  git add package.json src-tauri/tauri.conf.json src-tauri/Cargo.toml src-tauri/Cargo.lock CHANGELOG.md");
 console.log(`  git commit -m "chore(release): v${requestedVersion}"`);
+console.log(`  git push -u origin chore/release-v${requestedVersion}`);
+console.log("  # open a PR, wait for CI, squash-merge it, then:");
+console.log("  git switch main && git pull --ff-only");
 console.log(`  git tag -a v${requestedVersion} -m "QiaoReader v${requestedVersion}"`);
-console.log("  git push origin main --tags");
+console.log(`  git push origin v${requestedVersion}`);
