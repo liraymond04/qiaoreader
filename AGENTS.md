@@ -50,6 +50,7 @@ Never tick a checkbox because code was written — tick it because verification 
 * **UI verification:** run `bun tauri dev` for any UI change and inspect the rendered result (screenshot for visual changes). On this Sway host use `grim -g "<x>,<y> <w>x<h>"`, since `xdotool` cannot drive native Wayland windows; trigger state through the UI or HMR instead.
 * **UI components:** use the shadcn-svelte components in `$lib/components/ui` and add new ones with `bunx shadcn-svelte@latest add <name>`. Do not hand-roll dialogs, menus, popovers, or select controls that Bits UI already provides. Components are owned source: adjust them deliberately, not with one-off overrides in pages.
 * **Theming:** use semantic tokens (`bg-background`, `text-muted-foreground`, `border-border`); no hardcoded hex colours in components. Light/dark follows the OS through the `.dark` class.
+* **Reveal semantics:** hover and focus may link a word and its card, but only click/tap reveals pinyin or definitions. Hiding the selected card clears its highlight. Masked content is blurred, non-selectable, and `aria-hidden`; expose state with `aria-expanded`/`aria-pressed`.
 * **Layout:** at 640 px and wider the workspace is a strict 75 % reader / 25 % reference panel; below that the reference dock is a Sheet. Tap-to-reveal cards must remain keyboard-accessible, and touch targets must be at least 44 px with no hover-only affordances.
 
 ## 🚨 Warnings, Errors, and Silent Failures

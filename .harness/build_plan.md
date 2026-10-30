@@ -9,7 +9,7 @@
   - [ ] Implement TypeScript API client for local AnkiConnect bindings
 - [ ] Milestone 3: Interactive JIT Reading Loop
   - [ ] Program Pre-Check interstitial workspace management state in Svelte
-  - [ ] Construct Svelte-native masked tap-to-reveal components using local state ($state)
+  - [x] Construct Svelte-native masked tap-to-reveal components using local state ($state)
 - [ ] Milestone 4: Mobile Platform Orientation & Compilation
   - [ ] Integrate Tauri native landscape-locking window configurations
   - [ ] Code swipe pagination gesture touch mechanics

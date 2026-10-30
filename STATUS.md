@@ -8,7 +8,7 @@ QiaoReader is in early development. This file is the public summary; [`.harness/
 | --- | --- |
 | 1. Rust core & CC-CEDICT integration | Done |
 | 2. Split-screen UI & AnkiConnect | Split-screen shell done; AnkiConnect client next |
-| 3. Interactive JIT reading loop | Not started |
+| 3. Interactive JIT reading loop | Reference reveal/modes/ruby/details done; pre-check next |
 | 4. Mobile orientation & gestures | Not started |
 | 5. Documentation site & publishing | Not started |
 
@@ -19,7 +19,8 @@ QiaoReader is in early development. This file is the public summary; [`.harness/
 - [x] `process_raw_text` with `jieba-rs` segmentation
 - [x] Split-screen Svelte layout with a 75/25 reference dock
 - [ ] AnkiConnect TypeScript client
-- [ ] Tap-to-reveal reading loop with pre-check interstitial
+- [x] Reference panel reveal modes, ruby pinyin, tone colors, and details view
+- [ ] Pre-check interstitial and reader-level reveal loop
 - [ ] Mobile landscape locking and swipe pagination
 - [ ] Documentation site (MkDocs Material) on GitHub Pages
 

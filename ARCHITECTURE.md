@@ -56,8 +56,18 @@ Layout rules:
 - At 640 px and wider (desktop, tablets, landscape phones) the workspace is a strict 75/25 split: the reader canvas and the reference dock.
 - Below 640 px the dock becomes a right-hand Sheet while the reader takes the full width.
 - The toolbar toggle collapses or opens the dock; selecting a word opens it when hidden.
-- Reader words are inline buttons with a dotted underline. Masked pinyin and definitions arrive in Milestone 3.
+- Reader words are inline buttons with a dotted underline; tapping one selects it and reveals its reference card.
 - The page currently renders a sample paragraph until document import lands.
+
+### Reference panel interaction
+
+- Display modes are **Hidden** (default), **Pinyin**, and **Full**. The choice is persisted in `localStorage` and will also be set per session by the pre-check interstitial.
+- Tapping a reader word selects it, reveals its card, opens the dock when hidden, and scrolls the card into view. Tapping the same word again hides the card and clears the highlight.
+- Tapping a card toggles its own reveal. Revealing selects and highlights the word; hiding the selected card clears the highlight. In Full mode, tapping only toggles the highlight.
+- Hover (fine pointers) and keyboard focus link a reader word and its card with a highlight, but never reveal pinyin or definitions.
+- A dedicated details button opens a dialog with every reading, the traditional form, and all senses. It does not change reveal state.
+- Pinyin is rendered as ruby above each character when the syllable and character counts match; otherwise the card falls back to a single pinyin line. Tone colours are supplementary to the diacritics and can be disabled from the dock.
+- Masked pinyin and definitions are blurred, non-selectable, and `aria-hidden`; cards expose `aria-expanded`/`aria-pressed` state. Masking is local state, not a global mode side effect.
 
 ## Linux rendering
 

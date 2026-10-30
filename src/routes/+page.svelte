@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from "svelte";
+  import { onMount, tick } from "svelte";
   import { browser } from "$app/environment";
   import { t } from "svelte-i18n";
   import BookOpen from "@lucide/svelte/icons/book-open";
@@ -9,6 +9,7 @@
   import LocalePicker from "$lib/components/LocalePicker.svelte";
   import ReaderCanvas from "$lib/components/reader/ReaderCanvas.svelte";
   import ReferenceDock from "$lib/components/reader/ReferenceDock.svelte";
+  import WordDetailsDialog from "$lib/components/reader/WordDetailsDialog.svelte";
   import { Button } from "$lib/components/ui/button/index.js";
   import {
     Content as SheetContent,
@@ -24,14 +25,26 @@
   } from "$lib/components/ui/tooltip/index.js";
   import { processRawText } from "$lib/dictionary/api";
   import type { ProcessedText } from "$lib/dictionary/types";
+  import {
+    DEFAULT_DISPLAY_MODE,
+    isDisplayMode,
+    type DisplayMode,
+  } from "$lib/reader/display";
 
   const SAMPLE_TEXT =
     "秋天的傍晚，我沿着河边慢慢走回家。远处的山被夕阳染成了金色，风吹过稻田，带来一阵清香。我想起小时候，祖母也常在这样的傍晚，坐在门口给我讲故事。";
+  const MODE_KEY = "qiaoreader.displayMode";
+  const TONE_KEY = "qiaoreader.toneColors";
 
   let processed = $state<ProcessedText | null>(null);
   let loading = $state(true);
   let error = $state<string | null>(null);
+  let displayMode = $state<DisplayMode>(loadDisplayMode());
+  let toneColors = $state(loadToneColors());
+  let revealed = $state<number[]>([]);
   let selectedWordIndex = $state<number | null>(null);
+  let hoveredWordIndex = $state<number | null>(null);
+  let detailsWordIndex = $state<number | null>(null);
   let dockOpen = $state(true);
   let sheetOpen = $state(false);
   let isCompact = $state(
@@ -40,12 +53,115 @@
 
   let segments = $derived(processed?.segments ?? []);
   let words = $derived(processed?.words ?? []);
+  let detailsWord = $derived(
+    detailsWordIndex === null ? null : (words[detailsWordIndex] ?? null),
+  );
   let dockVisible = $derived(isCompact ? sheetOpen : dockOpen);
+
+  function loadDisplayMode(): DisplayMode {
+    if (!browser) return DEFAULT_DISPLAY_MODE;
+    const stored = localStorage.getItem(MODE_KEY);
+    return isDisplayMode(stored) ? stored : DEFAULT_DISPLAY_MODE;
+  }
+
+  function loadToneColors(): boolean {
+    if (!browser) return true;
+    return localStorage.getItem(TONE_KEY) !== "false";
+  }
+
+  function changeMode(next: DisplayMode) {
+    displayMode = next;
+    if (browser) localStorage.setItem(MODE_KEY, next);
+    revealed = [];
+    selectedWordIndex = null;
+    hoveredWordIndex = null;
+  }
+
+  function toggleToneColors() {
+    toneColors = !toneColors;
+    if (browser) localStorage.setItem(TONE_KEY, String(toneColors));
+  }
+
+  function addRevealed(index: number) {
+    if (!revealed.includes(index)) {
+      revealed = [...revealed, index];
+    }
+  }
+
+  function removeRevealed(index: number) {
+    revealed = revealed.filter((value) => value !== index);
+  }
+
+  function openDock() {
+    if (isCompact) {
+      sheetOpen = true;
+    } else {
+      dockOpen = true;
+    }
+  }
+
+  async function scrollToCard(index: number) {
+    await tick();
+    requestAnimationFrame(() => {
+      document.getElementById(`word-card-${index}`)?.scrollIntoView({
+        block: "nearest",
+        behavior: window.matchMedia("(prefers-reduced-motion: reduce)")
+          .matches
+          ? "auto"
+          : "smooth",
+      });
+    });
+  }
+
+  // Reader tap/click: select + reveal, or hide/unhighlight when already shown.
+  function selectWord(index: number) {
+    const fullyVisible =
+      displayMode === "full" || revealed.includes(index);
+
+    if (selectedWordIndex === index && fullyVisible) {
+      selectedWordIndex = null;
+      if (displayMode !== "full") removeRevealed(index);
+      return;
+    }
+
+    selectedWordIndex = index;
+    if (displayMode !== "full") addRevealed(index);
+    openDock();
+    void scrollToCard(index);
+  }
+
+  // Card tap/click: toggle reveal for this card; reveal implies highlight.
+  function toggleCard(index: number) {
+    if (displayMode === "full") {
+      selectedWordIndex = selectedWordIndex === index ? null : index;
+      return;
+    }
+
+    if (revealed.includes(index)) {
+      removeRevealed(index);
+      if (selectedWordIndex === index) selectedWordIndex = null;
+    } else {
+      addRevealed(index);
+      selectedWordIndex = index;
+      void scrollToCard(index);
+    }
+  }
+
+  function openDetails(index: number) {
+    detailsWordIndex = index;
+  }
+
+  function closeDetails() {
+    detailsWordIndex = null;
+  }
 
   async function loadSample() {
     loading = true;
     error = null;
     selectedWordIndex = null;
+    hoveredWordIndex = null;
+    revealed = [];
+    detailsWordIndex = null;
     try {
       processed = await processRawText(SAMPLE_TEXT);
     } catch (cause) {
@@ -67,15 +183,6 @@
       sheetOpen = !sheetOpen;
     } else {
       dockOpen = !dockOpen;
-    }
-  }
-
-  function selectWord(index: number) {
-    selectedWordIndex = index;
-    if (isCompact) {
-      sheetOpen = true;
-    } else {
-      dockOpen = true;
     }
   }
 
@@ -145,7 +252,9 @@
         {segments}
         {loading}
         {selectedWordIndex}
+        {hoveredWordIndex}
         onSelectWord={selectWord}
+        onHoverWord={(index) => (hoveredWordIndex = index)}
       />
     </section>
 
@@ -153,8 +262,16 @@
       <aside class="flex w-1/4 shrink-0 flex-col border-l bg-sidebar">
         <ReferenceDock
           {words}
+          mode={displayMode}
+          {toneColors}
+          {revealed}
           {selectedWordIndex}
-          onSelectWord={selectWord}
+          {hoveredWordIndex}
+          onModeChange={changeMode}
+          onToggleTone={toggleToneColors}
+          onSelectWord={toggleCard}
+          onHoverWord={(index) => (hoveredWordIndex = index)}
+          onDetails={openDetails}
           onClose={() => (dockOpen = false)}
           onDictionaryBuilt={loadSample}
         />
@@ -178,12 +295,26 @@
 
         <ReferenceDock
           {words}
+          mode={displayMode}
+          {toneColors}
+          {revealed}
           {selectedWordIndex}
-          onSelectWord={selectWord}
+          {hoveredWordIndex}
+          onModeChange={changeMode}
+          onToggleTone={toggleToneColors}
+          onSelectWord={toggleCard}
+          onHoverWord={(index) => (hoveredWordIndex = index)}
+          onDetails={openDetails}
           onClose={() => (sheetOpen = false)}
           onDictionaryBuilt={loadSample}
         />
       </SheetContent>
     </Sheet>
   {/if}
+
+  <WordDetailsDialog
+    word={detailsWord}
+    {toneColors}
+    onClose={closeDetails}
+  />
 </div>

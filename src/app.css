@@ -76,6 +76,23 @@
 	--sidebar-ring: oklch(0.556 0 0);
 }
 
+:root {
+	/* Tone colours for pinyin: supplementary to the diacritics, never the only
+	   signal. Chosen for contrast on the light sidebar. */
+	--tone-1: oklch(0.5 0.19 25);
+	--tone-2: oklch(0.5 0.14 150);
+	--tone-3: oklch(0.5 0.16 260);
+	--tone-4: oklch(0.5 0.18 315);
+	--tone-neutral: var(--muted-foreground);
+}
+
+.dark {
+	--tone-1: oklch(0.78 0.15 25);
+	--tone-2: oklch(0.78 0.13 150);
+	--tone-3: oklch(0.78 0.12 260);
+	--tone-4: oklch(0.78 0.14 315);
+}
+
 @theme inline {
 	--font-sans: 'Inter Variable', 'Noto Sans CJK SC', 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
 	--font-reader: 'Noto Serif CJK SC', 'Source Han Serif SC', 'Songti SC', 'SimSun', 'Noto Serif SC', serif;

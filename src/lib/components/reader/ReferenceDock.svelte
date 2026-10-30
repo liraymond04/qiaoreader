@@ -1,40 +1,69 @@
 <script lang="ts">
   import { t } from "svelte-i18n";
+  import Info from "@lucide/svelte/icons/info";
+  import Palette from "@lucide/svelte/icons/palette";
   import XIcon from "@lucide/svelte/icons/x";
 
   import { Badge } from "$lib/components/ui/badge/index.js";
   import { Button } from "$lib/components/ui/button/index.js";
   import { ScrollArea } from "$lib/components/ui/scroll-area/index.js";
+  import { rubySyllables, toneColor } from "$lib/dictionary/pinyin";
   import type { DictWord } from "$lib/dictionary/types";
+  import type { DisplayMode } from "$lib/reader/display";
   import { cn } from "$lib/utils.js";
 
   import DictionaryPanel from "./DictionaryPanel.svelte";
+  import PinyinText from "./PinyinText.svelte";
 
   let {
     words,
+    mode,
+    toneColors,
+    revealed,
     selectedWordIndex,
+    hoveredWordIndex,
+    onModeChange,
+    onToggleTone,
     onSelectWord,
+    onHoverWord,
+    onDetails,
     onClose,
     onDictionaryBuilt,
   }: {
     words: DictWord[];
+    mode: DisplayMode;
+    toneColors: boolean;
+    revealed: number[];
     selectedWordIndex: number | null;
+    hoveredWordIndex: number | null;
+    onModeChange: (mode: DisplayMode) => void;
+    onToggleTone: () => void;
     onSelectWord: (index: number) => void;
+    onHoverWord: (index: number | null) => void;
+    onDetails: (index: number) => void;
     onClose?: () => void;
     onDictionaryBuilt?: () => void;
   } = $props();
 
-  function pinyin(word: DictWord): string {
-    return word.entries[0]?.pinyinDisplay ?? "";
+  function primaryEntry(word: DictWord) {
+    return word.entries[0];
   }
 
   function definition(word: DictWord): string {
-    const entry = word.entries[0];
+    const entry = primaryEntry(word);
     if (!entry) return "";
     return entry.senses
       .slice(0, 2)
       .map((sense) => sense.definition)
       .join("; ");
+  }
+
+  function pinyinVisible(index: number): boolean {
+    return mode !== "hidden" || revealed.includes(index);
+  }
+
+  function definitionVisible(index: number): boolean {
+    return mode === "full" || revealed.includes(index);
   }
 </script>
 
@@ -57,33 +86,139 @@
     {/if}
   </header>
 
+  <div class="flex shrink-0 items-center gap-2 border-b px-2 py-2">
+    <select
+      onchange={(event) =>
+        onModeChange(event.currentTarget.value as DisplayMode)}
+      aria-label={$t("display.label")}
+      class="h-10 min-w-0 flex-1 cursor-pointer rounded-md border border-input bg-background px-2 text-sm text-foreground shadow-xs outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+    >
+      <option value="hidden" selected={mode === "hidden"}>
+        {$t("display.hidden")}
+      </option>
+      <option value="pinyin" selected={mode === "pinyin"}>
+        {$t("display.pinyin")}
+      </option>
+      <option value="full" selected={mode === "full"}>
+        {$t("display.full")}
+      </option>
+    </select>
+
+    <Button
+      variant={toneColors ? "secondary" : "ghost"}
+      size="icon"
+      class="size-10 shrink-0"
+      aria-pressed={toneColors}
+      aria-label={$t("display.toneColors")}
+      title={$t("display.toneColors")}
+      onclick={onToggleTone}
+    >
+      <Palette />
+    </Button>
+  </div>
+
   <ScrollArea class="min-h-0 flex-1">
-    <div class="flex flex-col gap-1 p-2">
+    <div class="flex flex-col gap-1 p-2" role="list">
       {#if words.length === 0}
         <p class="px-3 py-10 text-center text-sm text-muted-foreground">
           {$t("dock.empty")}
         </p>
       {:else}
         {#each words as word, index}
-          <button
-            type="button"
-            aria-pressed={selectedWordIndex === index}
-            onclick={() => onSelectWord(index)}
-            class={cn(
-              "flex w-full flex-col gap-1 rounded-md px-3 py-2.5 text-left transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50",
-              selectedWordIndex === index && "bg-accent",
-            )}
+          {@const entry = primaryEntry(word)}
+          {@const ruby = rubySyllables(word)}
+          {@const showPinyin = pinyinVisible(index)}
+          {@const showDefinition = definitionVisible(index)}
+          {@const selected = selectedWordIndex === index}
+          {@const hovered = hoveredWordIndex === index && !selected}
+
+          <div
+            id={`word-card-${index}`}
+            role="listitem"
+            class="group flex items-start gap-1"
+            onpointerenter={(event) => {
+              if (event.pointerType === "mouse") onHoverWord(index);
+            }}
+            onpointerleave={() => onHoverWord(null)}
           >
-            <span class="flex items-baseline justify-between gap-3">
-              <span class="font-reader text-xl leading-none">{word.text}</span>
-              <span class="shrink-0 text-xs text-muted-foreground">
-                {pinyin(word)}
+            <button
+              type="button"
+              aria-expanded={mode === "full" ? undefined : showDefinition}
+              aria-pressed={selected}
+              onclick={() => onSelectWord(index)}
+              onfocus={() => onHoverWord(index)}
+              onblur={() => onHoverWord(null)}
+              class={cn(
+                "flex min-w-0 flex-1 flex-col gap-1.5 rounded-md px-2.5 py-2.5 text-left transition-colors hover:bg-accent/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50",
+                selected && "bg-accent",
+                hovered && "bg-accent/40",
+              )}
+            >
+              {#if ruby}
+                <span class="flex flex-wrap items-end gap-x-2 gap-y-1">
+                  {#each ruby as syllable}
+                    <span class="flex flex-col items-center gap-0.5">
+                      <span
+                        class={cn(
+                          "text-[0.7rem] leading-none transition-[filter,opacity]",
+                          !showPinyin &&
+                            "pointer-events-none select-none opacity-50 blur-[4px]",
+                        )}
+                        style:color={toneColors && showPinyin
+                          ? toneColor(syllable.tone)
+                          : undefined}
+                        aria-hidden={!showPinyin}
+                      >
+                        {syllable.pinyin}
+                      </span>
+                      <span class="font-reader text-xl leading-none">
+                        {syllable.char}
+                      </span>
+                    </span>
+                  {/each}
+                </span>
+              {:else}
+                <span class="font-reader text-xl leading-none">
+                  {word.text}
+                </span>
+                <span
+                  class={cn(
+                    "mt-1 block text-xs text-muted-foreground transition-[filter,opacity]",
+                    !showPinyin &&
+                      "pointer-events-none select-none opacity-50 blur-[4px]",
+                  )}
+                  aria-hidden={!showPinyin}
+                >
+                  {#if entry}
+                    <PinyinText {entry} {toneColors} />
+                  {/if}
+                </span>
+              {/if}
+
+              <span
+                class={cn(
+                  "line-clamp-2 text-xs leading-relaxed text-muted-foreground transition-[filter,opacity]",
+                  !showDefinition &&
+                    "pointer-events-none select-none opacity-50 blur-[4px]",
+                )}
+                aria-hidden={!showDefinition}
+              >
+                {definition(word)}
               </span>
-            </span>
-            <span class="line-clamp-2 text-xs leading-relaxed text-muted-foreground">
-              {definition(word)}
-            </span>
-          </button>
+            </button>
+
+            <Button
+              variant="ghost"
+              size="icon"
+              class="mt-1 size-10 shrink-0 text-muted-foreground opacity-100 focus-visible:opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100"
+              onclick={() => onDetails(index)}
+              aria-label={$t("dock.details", {
+                values: { word: word.text },
+              })}
+            >
+              <Info class="size-4" />
+            </Button>
+          </div>
         {/each}
       {/if}
     </div>
