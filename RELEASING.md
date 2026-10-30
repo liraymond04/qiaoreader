@@ -105,7 +105,8 @@ script moves the section into the release entry.
 
 7. The `Release` workflow validates that the tag is on `main`, that the tag
    matches all three version fields, and builds the artifacts.
-8. Open the draft GitHub release, verify the assets, and publish it.
+8. The workflow publishes the release automatically. Verify the assets and the
+   changelog-derived release notes; do not move the tag afterward.
 
 Tags are the only release trigger. A normal push or merge to `main` runs `CI`
 but does not publish a release. If you want builds on every merge, publish them
@@ -118,11 +119,12 @@ Triggered by a `v*` tag (or manually with an existing tag):
 - **Desktop** on Ubuntu, macOS (arm64 and x64), and Windows. Linux produces
   AppImage/deb/rpm; macOS produces `.app`/`.dmg`; Windows produces `.msi`/NSIS.
 - **Android** when `src-tauri/gen/android` exists: `tauri-action` runs
-  `tauri android build` and uploads the `.apk`/`.aab` to the same draft release.
+  `tauri android build` and uploads the `.apk`/`.aab` to the same release.
   Until the Android project is initialised in Milestone 4, this job is skipped.
 
-The workflow creates a **draft** release so assets can be checked before
-publishing. Desktop builds are unsigned unless signing secrets are configured;
+The workflow publishes the release automatically. The release body is the
+matching `## [X.Y.Z]` section from `CHANGELOG.md`; write that section before
+tagging. Desktop builds are unsigned unless signing secrets are configured;
 macOS will show Gatekeeper warnings for unsigned builds.
 
 ## Android signing
