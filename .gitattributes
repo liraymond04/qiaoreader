@@ -1,0 +1,12 @@
+# Normalise line endings in the repository; the working tree stays native.
+* text=auto eol=lf
+
+# Binary assets: never diff, never convert.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.ico binary
+*.icns binary
+*.gz binary
+*.woff binary
+*.woff2 binary

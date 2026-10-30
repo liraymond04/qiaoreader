@@ -1,0 +1,20 @@
+.DS_Store
+node_modules
+/build
+/.svelte-kit
+/package
+.env
+.env.*
+!.env.example
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*
+
+# CC-CEDICT source data is fetched, not committed: `bun run dict:fetch`
+src-tauri/resources/cc-cedict/*.txt
+src-tauri/resources/cc-cedict/*.txt.gz
+src-tauri/resources/cc-cedict/*.gz
+
+# Locally generated dictionaries (e.g. `cargo run --example build_dictionary`)
+*.db
+*.db-wal
+*.db-shm
