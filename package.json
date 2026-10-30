@@ -12,6 +12,8 @@
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
     "verify": "bash scripts/verify.sh",
     "dict:fetch": "bun scripts/fetch-cc-cedict.ts",
+    "version:check": "bun scripts/bump-version.ts --check",
+    "version:bump": "bun scripts/bump-version.ts",
     "i18n:status": "bun scripts/i18n-status.ts",
     "i18n:check": "bun scripts/i18n-status.ts --check",
     "tauri": "tauri"

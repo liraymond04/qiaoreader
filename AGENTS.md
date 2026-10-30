@@ -26,7 +26,8 @@ A task is complete only when all of the following are true **in the same session
 2. New behaviour has a test, or the handoff explains concretely why it cannot be tested.
 3. There are **zero new warnings** in Rust and in Svelte/TypeScript.
 4. `.harness/build_plan.md` is updated (`- [x]`) and the session todo list matches it.
-5. The handoff lists: files changed, commands run with results, what remains, and the next unchecked task.
+5. User-visible changes have a `CHANGELOG.md` entry under `## [Unreleased]` (except in the release commit, which moves the section into the version entry).
+6. The handoff lists: files changed, commands run with results, what remains, and the next unchecked task.
 
 Never tick a checkbox because code was written — tick it because verification passed.
 
@@ -60,9 +61,12 @@ Never tick a checkbox because code was written — tick it because verification 
 * `unwrap_or` is acceptable only when a documented, sensible default exists.
 
 ## 🌿 Git & Commits
-* **Trunk:** `main`. Work on short-lived branches: `feat/…`, `fix/…`, `chore/…`, `docs/…`, `test/…`. Squash-merge.
+* **Branches:** `main` is the trunk. Work on short-lived `feat/<slug>`, `fix/<slug>`, or `chore/<slug>` branches from `main`; push, open a PR, and squash-merge once `bun run verify` and CI pass. Merge when the task is verified — not only when bumping a version. Direct pushes to `main` are reserved for release commits and emergencies.
 * **Conventional Commits:** `type(scope): summary` (≤ 72 chars). Types: `feat`, `fix`, `chore`, `docs`, `test`, `refactor`, `perf`, `build`. Scopes: `dict`, `db`, `ui`, `anki`, `mobile`, `repo`, `harness`.
 * **One logical change per commit.** The body explains *why*, notes schema/IPC changes, and records verification, e.g. `Verified: bun run verify`.
+* **Versioning:** Semantic Versioning 2.0.0. Before 1.0, bump MINOR for a feature or milestone and PATCH for fixes; breaking changes may occur in a MINOR and must be called out. Keep `package.json`, `src-tauri/tauri.conf.json`, and `src-tauri/Cargo.toml` in sync (`bun run version:check`); annotated tags are `vX.Y.Z` from `main`.
+* **Releases:** A pushed `vX.Y.Z` tag runs `.github/workflows/release.yml`, which validates the tag/version and builds desktop bundles (and Android when the Android project and signing are configured). Releases are tag-driven, never per-merge; see `RELEASING.md`.
+* **Changelog:** Add every user-visible change under `## [Unreleased]` in `CHANGELOG.md`; `bun run version:bump` moves it into the release section.
 * **Never commit:** `*.db`, `*.db-wal`, `*.db-shm`, CC-CEDICT source data, `node_modules/`, `build/`, `.svelte-kit/`, `src-tauri/target/`, `.env*`, credentials or keys.
 * **Never** use `--no-verify`. Do not force-push `main` or rewrite pushed history unless the user explicitly asks for a rewrite (for example, squashing the initial history); use `--force-with-lease` when they do.
 * **Agents** commit and push only when asked, stage only files related to the task, and never push to a remote other than `origin`.
@@ -83,7 +87,7 @@ English is the source locale; the UI must be translatable without editing compon
 Translation management: catalogs stay in-repo and reviewable. Hosted [Weblate](https://weblate.org) is the intended manager; it tracks per-language completion and pushes translations back through Git. See `TRANSLATING.md` for the catalog format, locale workflow, and Weblate component settings.
 
 ## 📚 Documentation Discipline
-* Root Markdown is the documentation until a docs site exists: `README.md` (what it is and how to run it), `ARCHITECTURE.md` (design), `STATUS.md` (milestones), `TRANSLATING.md` (localization), `AGENTS.md` (process).
+* Root Markdown is the documentation until a docs site exists: `README.md` (what it is and how to run it), `ARCHITECTURE.md` (design), `STATUS.md` (milestones), `TRANSLATING.md` (localization), `RELEASING.md` (branches, versions, releases), `CHANGELOG.md` (release history), `AGENTS.md` (process).
 * A fact belongs in exactly one of them; link to it instead of duplicating it.
 * When user-facing documentation is needed, introduce `docs/` with MkDocs Material and add `mkdocs build --strict` to `bun run verify`. Content moves out of the README rather than being copied.
 

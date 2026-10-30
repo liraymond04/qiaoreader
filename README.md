@@ -42,6 +42,10 @@ bun tauri build
 
 UI strings live in `src/lib/i18n/messages/`. See [TRANSLATING.md](TRANSLATING.md) for the catalog format, adding a locale, and the Weblate workflow.
 
+## Releases
+
+Versioned releases are tagged `vX.Y.Z`; see [CHANGELOG.md](CHANGELOG.md) for changes and [RELEASING.md](RELEASING.md) for the release process.
+
 ## License
 
 QiaoReader is licensed under the [GNU General Public License v3.0](LICENSE) (`GPL-3.0-only`).
