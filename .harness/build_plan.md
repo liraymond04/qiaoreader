@@ -13,3 +13,13 @@
 - [ ] Milestone 4: Mobile Platform Orientation & Compilation
   - [ ] Integrate Tauri native landscape-locking window configurations
   - [ ] Code swipe pagination gesture touch mechanics
+
+- [ ] Milestone 5: Documentation Site & Publishing
+  - [ ] Scaffold MkDocs Material under `docs/` and move ARCHITECTURE, STATUS, and TRANSLATING into it
+  - [ ] Add `mkdocs build --strict` to `bun run verify` and CI
+  - [ ] Publish the documentation site to GitHub Pages
+
+## Cross-cutting
+
+- [x] Localization pipeline: English source, Simplified Chinese catalog, locale switching, key/ICU parity gate
+- [ ] Hosted Weblate project and GitHub translation sync

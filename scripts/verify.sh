@@ -23,6 +23,9 @@ step "Rust: clippy (warnings are errors)"
 step "Rust: unit tests"
 (cd src-tauri && cargo test)
 
+step "Translations: catalog parity and ICU"
+bun run i18n:check
+
 step "Svelte/TypeScript: svelte-check (warnings are errors)"
 bun run check
 

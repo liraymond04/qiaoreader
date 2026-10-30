@@ -1,7 +1,11 @@
 <script lang="ts">
   import { onMount } from "svelte";
+  import { t, locale } from "svelte-i18n";
   import { invoke } from "@tauri-apps/api/core";
   import { listen } from "@tauri-apps/api/event";
+
+  import { setLocale } from "$lib/i18n";
+  import { SUPPORTED_LOCALES } from "$lib/i18n/locales";
 
   type DictionaryStatus = {
     ready: boolean;
@@ -55,6 +59,13 @@
   let error = $state<string | null>(null);
   let busy = $state(false);
 
+  let activeLocale = $derived($locale ?? "en");
+  let selectedLocale = $state("en");
+
+  $effect(() => {
+    selectedLocale = $locale ?? "en";
+  });
+
   async function refresh() {
     status = await invoke<DictionaryStatus>("dictionary_status");
     source = await invoke<DictionarySourceInfo>("dictionary_source");
@@ -81,13 +92,17 @@
     return String(cause);
   }
 
+  function num(value: number): string {
+    return value.toLocaleString(activeLocale);
+  }
+
   function mb(bytes: number | null | undefined): string {
     if (!bytes) return "—";
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   }
 
   function when(unix: number | null | undefined): string {
-    return unix ? new Date(unix * 1000).toLocaleString() : "—";
+    return unix ? new Date(unix * 1000).toLocaleString(activeLocale) : "—";
   }
 
   onMount(() => {
@@ -103,39 +118,52 @@
 </script>
 
 <main class="container">
-  <h1>QiaoReader</h1>
-  <p class="subtitle">
-    Backend diagnostic — temporary surface while Milestone 1 lands. The reader
-    UI replaces this in Milestone 2.
-  </p>
+  <header class="header">
+    <div>
+      <h1>QiaoReader</h1>
+      <p class="subtitle">{$t("app.subtitle")}</p>
+    </div>
+
+    <label class="locale">
+      <span>{$t("language.label")}</span>
+      <select
+        bind:value={selectedLocale}
+        onchange={(event) => setLocale(event.currentTarget.value)}
+      >
+        {#each SUPPORTED_LOCALES as item}
+          <option value={item.code}>{item.label}</option>
+        {/each}
+      </select>
+    </label>
+  </header>
 
   {#if error}
     <p class="error">{error}</p>
   {/if}
 
   <section class="card">
-    <h2>Dictionary</h2>
+    <h2>{$t("dict.title")}</h2>
 
     {#if status}
       <dl>
-        <dt>Status</dt>
+        <dt>{$t("dict.status")}</dt>
         <dd class={status.ready ? "ok" : "warn"}>
-          {status.ready ? "ready" : "not built"}
+          {status.ready ? $t("dict.status.ready") : $t("dict.status.notBuilt")}
         </dd>
-        <dt>Entries</dt>
-        <dd>{status.entryCount.toLocaleString()}</dd>
-        <dt>Senses</dt>
-        <dd>{status.senseCount.toLocaleString()}</dd>
-        <dt>Schema</dt>
+        <dt>{$t("dict.entries")}</dt>
+        <dd>{num(status.entryCount)}</dd>
+        <dt>{$t("dict.senses")}</dt>
+        <dd>{num(status.senseCount)}</dd>
+        <dt>{$t("dict.schema")}</dt>
         <dd>v{status.schemaVersion}</dd>
-        <dt>Database</dt>
+        <dt>{$t("dict.database")}</dt>
         <dd class="mono">{status.dbPath} ({mb(status.dbBytes)})</dd>
-        <dt>Last build</dt>
+        <dt>{$t("dict.lastBuild")}</dt>
         <dd>
           {when(status.builtAtUnix)}
-          {status.buildMs ? ` · ${status.buildMs} ms` : ""}
+          {status.buildMs ? ` · ${num(status.buildMs)} ms` : ""}
         </dd>
-        <dt>CC-CEDICT</dt>
+        <dt>{$t("dict.cedict")}</dt>
         <dd>
           {#if status.cedictDate}{status.cedictDate}{/if}
           {#if status.cedictPublisher} · {status.cedictPublisher}{/if}
@@ -144,25 +172,26 @@
           {/if}
         </dd>
         {#if status.skippedLines}
-          <dt>Skipped lines</dt>
-          <dd class="warn">{status.skippedLines}</dd>
+          <dt>{$t("dict.skippedLines")}</dt>
+          <dd class="warn">{num(status.skippedLines)}</dd>
         {/if}
       </dl>
     {:else}
-      <p>Loading…</p>
+      <p>{$t("common.loading")}</p>
     {/if}
 
-    <h3>Source file</h3>
+    <h3>{$t("dict.source.title")}</h3>
     {#if source}
       {#if source.found}
         <p class="mono">{source.path} ({mb(source.bytes)})</p>
       {:else}
-        <p class="warn">
-          Not found. Run <code>bun run dict:fetch</code>, or pass an explicit
-          <code>sourcePath</code>.
-        </p>
+        <p class="warn">{$t("dict.source.notFound")}</p>
         <details>
-          <summary>Locations probed ({source.searched.length})</summary>
+          <summary>
+            {$t("dict.source.probed", {
+              values: { count: source.searched.length },
+            })}
+          </summary>
           <ul class="searched">
             {#each source.searched as candidate}
               <li class="mono">{candidate}</li>
@@ -174,21 +203,26 @@
 
     <div class="actions">
       <button onclick={() => build(false)} disabled={busy || !source?.found}>
-        {busy ? "Working…" : "Build dictionary"}
+        {busy ? $t("dict.action.working") : $t("dict.action.build")}
       </button>
       <button onclick={() => build(true)} disabled={busy || !source?.found}>
-        Force rebuild
+        {$t("dict.action.force")}
       </button>
-      <button onclick={() => refresh()} disabled={busy}>Refresh status</button>
+      <button onclick={() => refresh()} disabled={busy}>
+        {$t("dict.action.refresh")}
+      </button>
     </div>
 
     {#if progress}
       <p class="progress">
-        {progress.phase}: {progress.processed.toLocaleString()}
-        {#if progress.total > 0}
-          / {progress.total.toLocaleString()}
-        {/if}
-        lines · {progress.entries.toLocaleString()} entries
+        {$t(progress.total > 0 ? "dict.progress" : "dict.progress.noTotal", {
+          values: {
+            phase: $t(`phase.${progress.phase}`),
+            processed: num(progress.processed),
+            total: num(progress.total),
+            entries: num(progress.entries),
+          },
+        })}
       </p>
       <progress
         value={progress.total > 0 ? progress.processed : undefined}
@@ -198,13 +232,21 @@
 
     {#if report}
       <p class="ok">
-        {report.skipped
-          ? "Database already up to date."
-          : `Imported ${report.entriesImported.toLocaleString()} entries / ${report.sensesImported.toLocaleString()} senses in ${report.elapsedMs} ms.`}
+        {$t(report.skipped ? "dict.report.uptodate" : "dict.report.imported", {
+          values: {
+            entries: num(report.entriesImported),
+            senses: num(report.sensesImported),
+            ms: num(report.elapsedMs),
+          },
+        })}
       </p>
       {#if report.warnings.length}
         <details>
-          <summary>{report.warnings.length} warning(s)</summary>
+          <summary>
+            {$t("dict.warnings", {
+              values: { count: report.warnings.length },
+            })}
+          </summary>
           <ul>
             {#each report.warnings as warning}
               <li>{warning}</li>
@@ -238,6 +280,14 @@
     padding: 6vh 1.5rem 4rem;
   }
 
+  .header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
   h1 {
     margin-bottom: 0.25rem;
   }
@@ -245,6 +295,24 @@
   .subtitle {
     margin-top: 0;
     opacity: 0.7;
+  }
+
+  .locale {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    opacity: 0.85;
+  }
+
+  .locale select {
+    /* Let the native control pick a matching background and text colour;
+       forcing one without the other makes the label invisible on WebKitGTK. */
+    color-scheme: light;
+    padding: 0.35rem 0.5rem;
+    border-radius: 6px;
+    border: 1px solid rgba(128, 128, 128, 0.5);
+    font: inherit;
   }
 
   .card {
@@ -281,8 +349,7 @@
     overflow-wrap: anywhere;
   }
 
-  .mono,
-  code {
+  .mono {
     font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
     font-size: 0.85em;
   }

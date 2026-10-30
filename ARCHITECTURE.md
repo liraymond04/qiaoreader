@@ -84,11 +84,11 @@ scripts/                      CC-CEDICT fetch script, verification gate
 
 ## Localization
 
-English is the source locale. User-facing strings are kept in catalogs (planned: `src/lib/i18n/messages/<locale>.json`) keyed by stable IDs; components never embed UI copy. Rust returns machine-readable error codes and the frontend owns the wording, so backend messages can change without touching translations.
+English is the source locale; Simplified Chinese (`zh-Hans`) ships as the first translation. Catalogs live in `src/lib/i18n/messages/<locale>.json` as flat maps of stable message IDs to ICU MessageFormat strings and are loaded by `svelte-i18n`. `src/lib/i18n/index.ts` detects the OS language, honours a persisted override in `localStorage`, and falls back to English. Components never embed UI copy.
 
-The dictionary's English definitions are content, not UI copy, and are displayed verbatim with CC-CEDICT attribution.
+Rust returns machine-readable error codes and the frontend owns the wording, so backend messages can change without touching translations. The dictionary's English definitions are content, not UI copy, and are displayed verbatim with CC-CEDICT attribution.
 
-Catalogs stay in-repo. Self-hosted Weblate is the intended manager once the reader UI stabilizes; it tracks per-locale completion and pushes updates back through Git. The catalog format is chosen in Milestone 2, constrained to a format Weblate supports (flat JSON or gettext PO).
+`bun run i18n:check` validates key parity, placeholders, and ICU syntax for every catalog, and runs as part of `bun run verify`. Translation management is designed around Weblate's JSON format; see `TRANSLATING.md`. Catalogs stay in-repo so coverage is reviewable in pull requests.
 
 ## Licensing boundary
 

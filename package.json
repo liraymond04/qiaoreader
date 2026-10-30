@@ -12,21 +12,25 @@
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
     "verify": "bash scripts/verify.sh",
     "dict:fetch": "bun scripts/fetch-cc-cedict.ts",
+    "i18n:status": "bun scripts/i18n-status.ts",
+    "i18n:check": "bun scripts/i18n-status.ts --check",
     "tauri": "tauri"
   },
   "license": "GPL-3.0-only",
   "dependencies": {
     "@tauri-apps/api": "^2",
-    "@tauri-apps/plugin-opener": "^2"
+    "@tauri-apps/plugin-opener": "^2",
+    "svelte-i18n": "^4.0.1"
   },
   "devDependencies": {
     "@sveltejs/adapter-static": "^3.0.10",
     "@sveltejs/kit": "^2.65.1",
     "@sveltejs/vite-plugin-svelte": "^7.1.2",
+    "@tauri-apps/cli": "^2",
+    "intl-messageformat": "^12.1.4",
     "svelte": "^5.56.3",
     "svelte-check": "^4.6.0",
     "typescript": "~6.0.3",
-    "vite": "^8.0.16",
-    "@tauri-apps/cli": "^2"
+    "vite": "^8.0.16"
   }
 }

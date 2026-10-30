@@ -38,6 +38,10 @@ To build a production bundle:
 bun tauri build
 ```
 
+## Translations
+
+UI strings live in `src/lib/i18n/messages/`. See [TRANSLATING.md](TRANSLATING.md) for the catalog format, adding a locale, and the Weblate workflow.
+
 ## License
 
 QiaoReader is licensed under the [GNU General Public License v3.0](LICENSE) (`GPL-3.0-only`).

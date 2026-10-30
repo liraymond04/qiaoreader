@@ -14,13 +14,14 @@ Always read the files in `.harness/` before starting a milestone. Read `ARCHITEC
 * **Package Manager:** Bun (`bun install`, `bun add`, `bun tauri dev`) — never npm/yarn/pnpm.
 * **Frontend:** Svelte 5 (Runes: `$state`, `$props`, `$derived`), TypeScript, TailwindCSS v4
 * **Backend:** Rust, `jieba-rs` (Segmentation), `rusqlite` (Embedded DB)
+* **Localization:** `svelte-i18n` with ICU catalogs (`src/lib/i18n/messages/*.json`), English source locale
 * **Desktop Platform Targets:** Linux (Arch Linux development host)
 * **Mobile Layout Directive:** Locked Landscape Mode Split-Screen UI
 
 ## ✅ Definition of Done
 A task is complete only when all of the following are true **in the same session**:
 
-1. `bun run verify` passes: rustfmt, clippy with `-D warnings`, `cargo test`, `svelte-check --fail-on-warnings`, and a production frontend build.
+1. `bun run verify` passes: rustfmt, clippy with `-D warnings`, `cargo test`, translation parity/ICU checks, `svelte-check --fail-on-warnings`, and a production frontend build.
 2. New behaviour has a test, or the handoff explains concretely why it cannot be tested.
 3. There are **zero new warnings** in Rust and in Svelte/TypeScript.
 4. `.harness/build_plan.md` is updated (`- [x]`) and the session todo list matches it.
@@ -70,15 +71,15 @@ English is the source locale; the UI must be translatable without editing compon
 * Use ICU MessageFormat for interpolation and plurals; never assemble sentences from fragments.
 * Rust returns stable machine-readable error `code`s. The frontend maps codes to localized text; the Rust `message` field is diagnostic and must not be rendered as UI copy.
 * Format dates, numbers, and relative times with `Intl`, not by hand.
-* Once a second locale exists, every source key must exist in every catalog and CI must fail on missing or extra keys. Add a `bun run i18n:status` check to the gate at that point.
+* Every source key must exist in every catalog. `bun run i18n:check` (part of `verify`) fails on missing or extra keys, empty messages, mismatched placeholders, or invalid ICU syntax. Use `bun run i18n:status` for a coverage report.
 * Detect the OS locale, allow a persisted user override, and default to English.
 * Dictionary content is CC-CEDICT English and is displayed verbatim; it is not UI copy.
 * Adding a locale means adding its catalog, updating the key check, and inspecting the layout at that locale.
 
-Translation management: keep catalogs in-repo and reviewable. The intended manager is self-hosted [Weblate](https://weblate.org) (AGPL) once the reader UI has stable strings; it tracks per-language completion and pushes changes back through Git. Revisit the catalog format then — flat JSON and gettext PO are both first-class in Weblate.
+Translation management: catalogs stay in-repo and reviewable. Hosted [Weblate](https://weblate.org) is the intended manager; it tracks per-language completion and pushes translations back through Git. See `TRANSLATING.md` for the catalog format, locale workflow, and Weblate component settings.
 
 ## 📚 Documentation Discipline
-* Root Markdown is the documentation until a docs site exists: `README.md` (what it is and how to run it), `ARCHITECTURE.md` (design), `STATUS.md` (milestones), `AGENTS.md` (process).
+* Root Markdown is the documentation until a docs site exists: `README.md` (what it is and how to run it), `ARCHITECTURE.md` (design), `STATUS.md` (milestones), `TRANSLATING.md` (localization), `AGENTS.md` (process).
 * A fact belongs in exactly one of them; link to it instead of duplicating it.
 * When user-facing documentation is needed, introduce `docs/` with MkDocs Material and add `mkdocs build --strict` to `bun run verify`. Content moves out of the README rather than being copied.
 

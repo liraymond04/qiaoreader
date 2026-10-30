@@ -10,6 +10,7 @@ QiaoReader is in early development. This file is the public summary; [`.harness/
 | 2. Split-screen UI & AnkiConnect | Not started |
 | 3. Interactive JIT reading loop | Not started |
 | 4. Mobile orientation & gestures | Not started |
+| 5. Documentation site & publishing | Not started |
 
 ## Roadmap
 
@@ -19,7 +20,13 @@ QiaoReader is in early development. This file is the public summary; [`.harness/
 - [ ] Split-screen Svelte layout and AnkiConnect client
 - [ ] Tap-to-reveal reading loop with pre-check interstitial
 - [ ] Mobile landscape locking and swipe pagination
+- [ ] Documentation site (MkDocs Material) on GitHub Pages
+
+## Foundations
+
+- [x] Localization catalogs (English + Simplified Chinese), locale switching, key/ICU parity gate
+- [ ] Hosted Weblate project and GitHub translation sync
 
 ## Verification
 
-CI runs the web and Rust checks on every push and pull request, and imports the real 125k-entry CC-CEDICT corpus on pushes to `main`, manual runs, and a weekly schedule. See [`.github/workflows/ci.yml`](.github/workflows/ci.yml) and the verification gates in [AGENTS.md](AGENTS.md).
+CI runs the web and Rust checks (including translation parity) on every push and pull request, and imports the real 125k-entry CC-CEDICT corpus on pushes to `main`, manual runs, and a weekly schedule. See [`.github/workflows/ci.yml`](.github/workflows/ci.yml) and the verification gates in [AGENTS.md](AGENTS.md).
