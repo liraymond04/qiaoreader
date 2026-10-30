@@ -135,7 +135,11 @@
           <div
             id={`word-card-${index}`}
             role="listitem"
-            class="group flex items-start gap-1"
+            class={cn(
+              "group relative rounded-md transition-colors hover:bg-accent/60",
+              selected && "bg-accent",
+              hovered && "bg-accent/40",
+            )}
             onpointerenter={(event) => {
               if (event.pointerType === "mouse") onHoverWord(index);
             }}
@@ -148,19 +152,15 @@
               onclick={() => onSelectWord(index)}
               onfocus={() => onHoverWord(index)}
               onblur={() => onHoverWord(null)}
-              class={cn(
-                "flex min-w-0 flex-1 flex-col gap-1.5 rounded-md px-2.5 py-2.5 text-left transition-colors hover:bg-accent/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50",
-                selected && "bg-accent",
-                hovered && "bg-accent/40",
-              )}
+              class="flex w-full flex-col gap-1.5 rounded-md px-3 py-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
             >
               {#if ruby}
-                <span class="flex flex-wrap items-end gap-x-2 gap-y-1">
+                <span class="flex flex-wrap items-end gap-x-0.5 gap-y-1 pr-8">
                   {#each ruby as syllable}
-                    <span class="flex flex-col items-center gap-0.5">
+                    <span class="relative inline-flex flex-col items-center pt-5">
                       <span
                         class={cn(
-                          "text-[0.7rem] leading-none transition-[filter,opacity]",
+                          "absolute top-0 left-1/2 -translate-x-1/2 whitespace-nowrap text-[0.8rem] leading-none tracking-tight transition-[filter,opacity]",
                           !showPinyin &&
                             "pointer-events-none select-none opacity-50 blur-[4px]",
                         )}
@@ -171,19 +171,19 @@
                       >
                         {syllable.pinyin}
                       </span>
-                      <span class="font-reader text-xl leading-none">
+                      <span class="font-reader text-[1.75rem] leading-none">
                         {syllable.char}
                       </span>
                     </span>
                   {/each}
                 </span>
               {:else}
-                <span class="font-reader text-xl leading-none">
+                <span class="block pr-8 font-reader text-[1.75rem] leading-none">
                   {word.text}
                 </span>
                 <span
                   class={cn(
-                    "mt-1 block text-xs text-muted-foreground transition-[filter,opacity]",
+                    "mt-1 block pr-8 text-[0.8rem] text-muted-foreground transition-[filter,opacity]",
                     !showPinyin &&
                       "pointer-events-none select-none opacity-50 blur-[4px]",
                   )}
@@ -197,7 +197,7 @@
 
               <span
                 class={cn(
-                  "line-clamp-2 text-xs leading-relaxed text-muted-foreground transition-[filter,opacity]",
+                  "line-clamp-2 text-[0.8rem] leading-relaxed text-muted-foreground transition-[filter,opacity]",
                   !showDefinition &&
                     "pointer-events-none select-none opacity-50 blur-[4px]",
                 )}
@@ -210,7 +210,7 @@
             <Button
               variant="ghost"
               size="icon"
-              class="mt-1 size-10 shrink-0 text-muted-foreground opacity-100 focus-visible:opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100"
+              class="absolute right-1.5 top-1.5 text-muted-foreground opacity-60 transition-opacity hover:opacity-100 focus-visible:opacity-100 sm:opacity-40 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100"
               onclick={() => onDetails(index)}
               aria-label={$t("dock.details", {
                 values: { word: word.text },

@@ -23,6 +23,9 @@ step "Rust: clippy (warnings are errors)"
 step "Rust: unit tests"
 (cd src-tauri && cargo test)
 
+step "Release metadata: version sync"
+bun run version:check
+
 step "Translations: catalog parity and ICU"
 bun run i18n:check
 
