@@ -2,7 +2,7 @@
 
 QiaoReader is a just-in-time reading companion for heritage Chinese speakers. It segments Chinese text into words as you read and shows each word's pinyin and English definitions in a side panel, so you can look things up without leaving the page.
 
-Built with Tauri 2 (Rust core), Svelte 5, Bun, and an embedded SQLite dictionary generated from CC-CEDICT.
+Built with Tauri 2 (Rust core), Svelte 5, Bun, Tailwind CSS v4, shadcn-svelte, and an embedded SQLite dictionary generated from CC-CEDICT.
 
 ## Requirements
 
@@ -51,4 +51,4 @@ The bundled CC-CEDICT dictionary data is © MDBG and contributors and is license
 ## Credits
 
 - [CC-CEDICT](https://www.mdbg.net/chinese/dictionary?page=cc-cedict)
-- [Tauri](https://v2.tauri.app), [Svelte](https://svelte.dev), [rusqlite](https://github.com/rusqlite/rusqlite), and [Bun](https://bun.sh)
+- [Tauri](https://v2.tauri.app), [Svelte](https://svelte.dev), [Tailwind CSS](https://tailwindcss.com), [shadcn-svelte](https://shadcn-svelte.com), [rusqlite](https://github.com/rusqlite/rusqlite), and [Bun](https://bun.sh)

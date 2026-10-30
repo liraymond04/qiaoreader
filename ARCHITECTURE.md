@@ -45,6 +45,20 @@ Accepted names: `cedict_1_0_ts_utf-8_mdbg.txt.gz`, `cedict_1_0_ts_utf-8_mdbg.txt
 
 The segmenter's dictionary is embedded in the binary and loaded lazily on the first request.
 
+## UI system
+
+The interface uses Tailwind CSS v4 and shadcn-svelte over Bits UI. shadcn-svelte is not a runtime component library: its components are generated into `$lib/components/ui` by the CLI and owned by the repository, so they can be tuned for touch and for the reader without fighting a design system.
+
+Theme tokens live in `src/app.css` as OKLCH CSS variables. Light and dark mode follow the OS preference through the `.dark` class on the document root; components use semantic tokens (`bg-background`, `text-muted-foreground`) rather than fixed colours. CJK fallbacks are part of the font tokens, with a separate serif stack for the reading canvas.
+
+Layout rules:
+
+- At 640 px and wider (desktop, tablets, landscape phones) the workspace is a strict 75/25 split: the reader canvas and the reference dock.
+- Below 640 px the dock becomes a right-hand Sheet while the reader takes the full width.
+- The toolbar toggle collapses or opens the dock; selecting a word opens it when hidden.
+- Reader words are inline buttons with a dotted underline. Masked pinyin and definitions arrive in Milestone 3.
+- The page currently renders a sample paragraph until document import lands.
+
 ## Database schema
 
 | Table | Purpose |
@@ -75,7 +89,14 @@ Builds emit `dictionary://import-progress` events with `phase`, `processed`, `to
 
 ```
 src/                          SvelteKit frontend
-  routes/+page.svelte         Temporary backend diagnostic panel
+  app.css                     Tailwind v4 theme + shadcn tokens
+  lib/
+    components/ui/            shadcn-svelte components (CLI-generated, owned)
+    components/reader/        Reader canvas, reference dock, dictionary panel
+    dictionary/               IPC types and typed command client
+    i18n/                     Message catalogs and locale helpers
+  routes/+page.svelte         Reader shell (sample text)
+components.json               shadcn-svelte CLI configuration
 src-tauri/
   src/
     db/                       SQLite: schema, migrations, read queries

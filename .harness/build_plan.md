@@ -5,7 +5,7 @@
   - [x] Write raw CC-CEDICT file parser to build internal embedded SQLite database
   - [x] Implement `process_raw_text` command integrating `jieba-rs` tokenizer
 - [ ] Milestone 2: Responsive Split-Screen UI & Anki Connect
-  - [ ] Create TailwindCSS responsive layout using Svelte components (Left/Right dock toggle rules)
+  - [x] Create TailwindCSS responsive layout using Svelte components (Left/Right dock toggle rules)
   - [ ] Implement TypeScript API client for local AnkiConnect bindings
 - [ ] Milestone 3: Interactive JIT Reading Loop
   - [ ] Program Pre-Check interstitial workspace management state in Svelte

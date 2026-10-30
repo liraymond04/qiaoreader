@@ -48,7 +48,11 @@ pub fn lookup(conn: &Connection, word: &str, limit: usize) -> AppResult<Vec<Dict
         "SELECT {ENTRY_COLUMNS}
            FROM entries e
           WHERE e.simplified = ?1 OR e.traditional = ?1
-          ORDER BY e.word_length ASC, e.simplified ASC, e.id ASC
+          ORDER BY e.word_length ASC,
+                   -- CC-CEDICT capitalises proper nouns; show the common reading first.
+                   CASE WHEN e.pinyin GLOB '[A-Z]*' THEN 1 ELSE 0 END ASC,
+                   e.simplified ASC,
+                   e.id ASC
           LIMIT ?2"
     );
 

@@ -270,6 +270,35 @@ mod tests {
     }
 
     #[test]
+    fn lookup_orders_common_readings_before_proper_nouns() {
+        let db = Database::open_in_memory().expect("open in-memory db");
+        for (id, pinyin, definition) in
+            [(1, "Shan1", "surname Shan"), (2, "shan1", "mountain; hill")]
+        {
+            db.connection()
+                .execute(
+                    "INSERT INTO entries
+                         (id, traditional, simplified, pinyin, pinyin_display,
+                          pinyin_plain, pinyin_compact, word_length, source_line)
+                     VALUES (?1, '山', '山', ?2, ?2, 'shan', 'shan', 1, 1)",
+                    params![id, pinyin],
+                )
+                .expect("insert entry");
+            db.connection()
+                .execute(
+                    "INSERT INTO senses (id, entry_id, position, definition)
+                     VALUES (?1, ?2, 0, ?3)",
+                    params![id, id, definition],
+                )
+                .expect("insert sense");
+        }
+
+        let entries = db.lookup("山", 10).expect("lookup");
+        assert_eq!(entries[0].pinyin, "shan1");
+        assert_eq!(entries[1].pinyin, "Shan1");
+    }
+
+    #[test]
     fn meta_round_trips_and_updates() {
         let db = Database::open_in_memory().expect("open in-memory db");
         db.set_meta("unit.test", "one").expect("set");

@@ -12,9 +12,11 @@
   "app": {
     "windows": [
       {
-        "title": "qiaoreader",
-        "width": 800,
-        "height": 600
+        "title": "QiaoReader",
+        "width": 1200,
+        "height": 800,
+        "minWidth": 640,
+        "minHeight": 480
       }
     ],
     "security": {

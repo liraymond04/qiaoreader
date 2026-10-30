@@ -14,6 +14,7 @@ Always read the files in `.harness/` before starting a milestone. Read `ARCHITEC
 * **Package Manager:** Bun (`bun install`, `bun add`, `bun tauri dev`) — never npm/yarn/pnpm.
 * **Frontend:** Svelte 5 (Runes: `$state`, `$props`, `$derived`), TypeScript, TailwindCSS v4
 * **Backend:** Rust, `jieba-rs` (Segmentation), `rusqlite` (Embedded DB)
+* **UI:** TailwindCSS v4 + shadcn-svelte (Bits UI primitives, components vendored into `$lib/components/ui`)
 * **Localization:** `svelte-i18n` with ICU catalogs (`src/lib/i18n/messages/*.json`), English source locale
 * **Desktop Platform Targets:** Linux (Arch Linux development host)
 * **Mobile Layout Directive:** Locked Landscape Mode Split-Screen UI
@@ -47,7 +48,9 @@ Never tick a checkbox because code was written — tick it because verification 
 * **Native boundary:** everything native goes through `invoke` from `@tauri-apps/api/core`. Never add web `fetch` for Anki or filesystem access.
 * **Quality:** `svelte-check --fail-on-warnings` must be clean. No leftover `console.log`, dead CSS selectors, or unused imports.
 * **UI verification:** run `bun tauri dev` for any UI change and inspect the rendered result (screenshot for visual changes). On this Sway host use `grim -g "<x>,<y> <w>x<h>"`, since `xdotool` cannot drive native Wayland windows; trigger state through the UI or HMR instead.
-* **Layout:** mobile is locked landscape, 75 % reader canvas / 25 % reference panel. Tap-to-reveal cards must remain keyboard-accessible.
+* **UI components:** use the shadcn-svelte components in `$lib/components/ui` and add new ones with `bunx shadcn-svelte@latest add <name>`. Do not hand-roll dialogs, menus, popovers, or select controls that Bits UI already provides. Components are owned source: adjust them deliberately, not with one-off overrides in pages.
+* **Theming:** use semantic tokens (`bg-background`, `text-muted-foreground`, `border-border`); no hardcoded hex colours in components. Light/dark follows the OS through the `.dark` class.
+* **Layout:** at 640 px and wider the workspace is a strict 75 % reader / 25 % reference panel; below that the reference dock is a Sheet. Tap-to-reveal cards must remain keyboard-accessible, and touch targets must be at least 44 px with no hover-only affordances.
 
 ## 🚨 Warnings, Errors, and Silent Failures
 * **Zero-warning policy** in both ecosystems. A warning is debt: fix it, or suppress it with a written reason.
