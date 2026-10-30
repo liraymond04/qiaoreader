@@ -14,6 +14,7 @@
     "dict:fetch": "bun scripts/fetch-cc-cedict.ts",
     "version:check": "bun scripts/bump-version.ts --check",
     "version:bump": "bun scripts/bump-version.ts",
+    "changelog:section": "bun scripts/changelog-section.ts",
     "i18n:status": "bun scripts/i18n-status.ts",
     "i18n:check": "bun scripts/i18n-status.ts --check",
     "tauri": "tauri"

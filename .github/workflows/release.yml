@@ -28,6 +28,7 @@ jobs:
     runs-on: ubuntu-24.04
     outputs:
       has_android: ${{ steps.android.outputs.has_android }}
+      release_body: ${{ steps.notes.outputs.body }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -49,6 +50,17 @@ jobs:
 
       - name: Check versions match the tag
         run: bun run version:check --tag "$RELEASE_TAG"
+
+      - name: Extract release notes
+        id: notes
+        run: |
+          delimiter="CHANGELOG_SECTION_$(openssl rand -hex 8)"
+          body="$(bun run changelog:section --version "${RELEASE_TAG#v}")"
+          {
+            echo "body<<$delimiter"
+            echo "$body"
+            echo "$delimiter"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Detect the Android project
         id: android
@@ -111,7 +123,7 @@ jobs:
         with:
           workspaces: src-tauri -> target
 
-      - name: Build and attach to the draft release
+      - name: Build and attach to the release
         uses: tauri-apps/tauri-action@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -119,10 +131,11 @@ jobs:
           tagName: ${{ github.event.inputs.tag || github.ref_name }}
           releaseName: "QiaoReader ${{ github.event.inputs.tag || github.ref_name }}"
           releaseBody: |
-            See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/${{ github.event.inputs.tag || github.ref_name }}/CHANGELOG.md) for the changes in this release.
+            ${{ needs.metadata.outputs.release_body }}
 
+            ---
             Desktop builds are unsigned unless signing secrets are configured.
-          releaseDraft: true
+          releaseDraft: false
           prerelease: false
           generateReleaseNotes: false
           tauriScript: bun tauri
@@ -194,14 +207,14 @@ jobs:
           echo "$ANDROID_KEY_BASE64" | base64 -d > "$RUNNER_TEMP/upload-keystore.jks"
           echo "storeFile=$RUNNER_TEMP/upload-keystore.jks" >> keystore.properties
 
-      - name: Build and attach the APK to the draft release
+      - name: Build and attach the APK to the release
         uses: tauri-apps/tauri-action@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tagName: ${{ github.event.inputs.tag || github.ref_name }}
           releaseName: "QiaoReader ${{ github.event.inputs.tag || github.ref_name }}"
-          releaseDraft: true
+          releaseDraft: false
           prerelease: false
           generateReleaseNotes: false
           tauriScript: bun tauri
