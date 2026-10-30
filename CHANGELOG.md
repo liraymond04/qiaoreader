@@ -27,6 +27,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Use the `com.liraymond04.qiaoreader` bundle identifier; app data now lives
+  under the new identifier.
 - Reference cards use larger characters, tighter ruby spacing, and an inline
   details button, leaving more width for definitions.
 - README, ARCHITECTURE, STATUS, TRANSLATING, and AGENTS documents establish the
