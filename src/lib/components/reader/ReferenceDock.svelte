@@ -210,7 +210,7 @@
             <Button
               variant="ghost"
               size="icon"
-              class="absolute right-1.5 top-1.5 !size-11 text-muted-foreground opacity-60 transition-opacity hover:opacity-100 focus-visible:opacity-100 sm:opacity-40 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100"
+              class="absolute right-1.5 top-1.5 size-11 text-muted-foreground opacity-60 transition-opacity hover:opacity-100 focus-visible:opacity-100 sm:opacity-40 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100"
               onclick={() => onDetails(index)}
               aria-label={$t("dock.details", {
                 values: { word: word.text },
