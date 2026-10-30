@@ -5,18 +5,49 @@ GitHub releases.
 
 ## Branch and merge flow
 
-`main` is the trunk. Work on short-lived branches from `main`:
+`main` is the integration branch. Work on short-lived branches from `main`:
 
 ```sh
 git switch -c feat/reference-panel
-# ...commit...
-git push -u origin feat/reference-panel
+git config push.default current   # optional: plain `git push` follows the branch
+git push -u origin HEAD
 ```
 
-Open a PR, let `CI` pass, and squash-merge once the task is verified. **Merge
-when the work is done, not when bumping a version.** A long-lived branch that
-waits for a release makes integration harder and hides regressions. Direct
-pushes to `main` are reserved for release commits and emergencies.
+Open a PR (draft while it is WIP), let CI pass, and squash-merge once the task
+is verified. **Merge when the work is done, not when bumping a version.**
+
+### Do not keep a long-lived `feat` branch
+
+A permanent `feat` (or `develop`) branch can be made to work, but it becomes a
+second integration branch:
+
+- every change lands there first and then has to be promoted to `main`;
+- conflicts are deferred, not removed;
+- `main` drifts from the code that is actually being tested;
+- `feat` collides with the `feat/<topic>` naming convention.
+
+For remote backup and coordination, push each topic branch to `origin` and use a
+draft PR. Every commit is saved remotely without a shared catch-all branch. If
+the project later needs a release train with multiple maintainers, add a
+`develop` (not `feat`) branch deliberately, protect it, and define promotion to
+`main`. Until then, keep `main` plus short-lived branches.
+
+### `main` protection
+
+`main` is protected with these rules:
+
+- A pull request is required; direct pushes are blocked, including for admins.
+- Both required status checks must pass: `Web (Svelte + TypeScript)` and
+  `Rust (fmt, clippy, tests)`.
+- The branch must be up to date with `main`; only linear history is allowed
+  (squash or rebase), and conversations must be resolved.
+- Force pushes and branch deletion are blocked.
+- Tags matching `v*` cannot be deleted or moved.
+
+Required approvals are currently **0**, so a solo maintainer can merge their own
+PR. Raise this to 1 when a second regular maintainer joins. Release commits also
+go through a `chore/release-vX.Y.Z` PR; tags are created only after that PR is
+merged.
 
 ## Versioning
 
@@ -44,6 +75,8 @@ bun run version:bump 0.2.0        # update all three and cut the changelog secti
 
 The bump script moves `CHANGELOG.md` entries from `[Unreleased]` into the new
 version section, dated today. It does not commit or tag; review the diff first.
+`Cargo.lock` also records the package version: run `cargo check` after the bump
+so the lockfile is staged with the release commit.
 
 ## Changelog
 
@@ -55,19 +88,24 @@ script moves the section into the release entry.
 ## Release checklist
 
 1. `main` is green and `bun run verify` passes locally.
-2. Decide the version and run `bun run version:bump X.Y.Z`.
-3. Review the generated `CHANGELOG.md` section and the version diff.
-4. Commit `chore(release): vX.Y.Z`.
-5. Create and push an annotated tag:
+2. Create a release branch: `git switch -c chore/release-vX.Y.Z`.
+3. Run `bun run version:bump X.Y.Z`.
+4. Review the generated `CHANGELOG.md` section and the version diff; run
+   `cargo check` to refresh `Cargo.lock`.
+5. Commit `chore(release): vX.Y.Z`, push the branch, open a PR, and squash-merge
+   it after CI passes.
+6. After the merge, update `main` and tag the merge commit:
 
    ```sh
+   git switch main
+   git pull --ff-only
    git tag -a vX.Y.Z -m "QiaoReader vX.Y.Z"
-   git push origin main --tags
+   git push origin vX.Y.Z
    ```
 
-6. The `Release` workflow validates that the tag is on `main`, that the tag
+7. The `Release` workflow validates that the tag is on `main`, that the tag
    matches all three version fields, and builds the artifacts.
-7. Open the draft GitHub release, verify the assets, and publish it.
+8. Open the draft GitHub release, verify the assets, and publish it.
 
 Tags are the only release trigger. A normal push or merge to `main` runs `CI`
 but does not publish a release. If you want builds on every merge, publish them
